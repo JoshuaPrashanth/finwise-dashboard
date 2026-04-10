@@ -2,11 +2,15 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 
 export default function TradingCard() {
-  const [modal, setModal] = useState<'deposit' | 'withdraw' | null>(null)
+  const { userData } = useAuth()
+  const [modal, setModal] = useState<'deposit'|'withdraw'|null>(null)
   const [amount, setAmount] = useState('')
-  const [balance, setBalance] = useState(45000)
+  const [balance, setBalance] = useState(userData?.tradingWalletBalance || 0)
+
+  if (!userData) return null
 
   const formatINR = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n)
 
@@ -26,22 +30,22 @@ export default function TradingCard() {
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ delay: 0.2 }} 
-        className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-5 hover:border-[#0ea5e9] transition-all overflow-hidden"
+        className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-5 hover:border-[#0ea5e9] transition-all"
       >
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center">
           <h3 className="text-[#94a3b8] text-xs font-semibold uppercase tracking-wider">Trading Wallet</h3>
           <Wallet className="text-[#0ea5e9]" size={18} />
         </div>
-        <div className="mb-3">
+        <div className="mt-2">
           <span className="text-xl font-bold text-[#0ea5e9]">{formatINR(balance)}</span>
           <span className="text-[#94a3b8] text-xs ml-1">available</span>
         </div>
-        <div className="flex flex-wrap gap-2 mb-3">
-          <button onClick={() => setModal('deposit')} className="flex-1 min-w-[70px] bg-[#0ea5e9] text-[#020617] font-semibold py-1.5 rounded-full text-sm hover:bg-[#38bdf8]">Deposit</button>
-          <button onClick={() => alert('Market section coming soon')} className="flex-1 min-w-[70px] bg-[#f97316] text-white font-semibold py-1.5 rounded-full text-sm hover:bg-[#fb923c]">Trade Now</button>
-          <button onClick={() => setModal('withdraw')} className="flex-1 min-w-[70px] bg-[#1e293b] text-white border border-[#334155] py-1.5 rounded-full text-sm hover:bg-[#334155]">Withdraw</button>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <button onClick={()=>setModal('deposit')} className="flex-1 bg-[#0ea5e9] text-[#020617] font-semibold py-1.5 rounded-full text-sm hover:bg-[#38bdf8]">Deposit</button>
+          <button onClick={()=>alert('Market section coming soon')} className="flex-1 bg-[#f97316] text-white font-semibold py-1.5 rounded-full text-sm hover:bg-[#fb923c]">Trade Now</button>
+          <button onClick={()=>setModal('withdraw')} className="flex-1 bg-[#1e293b] text-white border border-[#334155] py-1.5 rounded-full text-sm hover:bg-[#334155]">Withdraw</button>
         </div>
-        <div className="pt-3 border-t border-[#1e293b]">
+        <div className="mt-4 pt-3 border-t border-[#1e293b]">
           <div className="text-xs text-[#94a3b8] mb-1">Market snapshot</div>
           <div className="flex flex-wrap gap-2">
             <div className="flex items-center gap-1 bg-[#1e293b] px-2 py-1 rounded-full text-xs text-white">
@@ -56,13 +60,10 @@ export default function TradingCard() {
           </div>
         </div>
       </motion.div>
-
       {modal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0f172a] border border-[#0ea5e9] rounded-2xl max-w-md w-full p-5">
-            <h3 className="text-xl font-bold text-[#0ea5e9] mb-3">
-              {modal === 'deposit' ? 'Deposit Funds' : 'Withdraw Funds'}
-            </h3>
+            <h3 className="text-xl font-bold text-[#0ea5e9] mb-3">{modal === 'deposit' ? 'Deposit Funds' : 'Withdraw Funds'}</h3>
             <input
               type="number"
               placeholder="Amount (₹)"

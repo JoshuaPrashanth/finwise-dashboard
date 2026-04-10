@@ -8,6 +8,8 @@ import {
 import { LineChart as RechartsLine, Line, ResponsiveContainer, Tooltip as RechartsTooltip } from 'recharts'
 import Header from '@/components/Header'
 import BottomNav from '@/components/BottomNav'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import { useAuth } from '@/context/AuthContext'
 
 // ---------- Mock Data ----------
 const cryptoData = [
@@ -61,7 +63,7 @@ const Sparkline = ({ data, color }: { data: number[]; color: string }) => (
   </ResponsiveContainer>
 )
 
-// ---------- MarketTable Component (with fixed white emoji logos) ----------
+// ---------- MarketTable Component (with emoji logos) ----------
 const MarketTable = ({ data, type }: { data: any[]; type: 'crypto' | 'stock' | 'index' }) => {
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<'price' | 'change'>('price')
@@ -130,7 +132,6 @@ const MarketTable = ({ data, type }: { data: any[]; type: 'crypto' | 'stock' | '
               <motion.tr key={item.symbol || item.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.03 }} className="border-b border-[#1e293b] hover:bg-[#1e293b]/50">
                 <td className="p-3">
                   <div className="flex items-center gap-2">
-                    {/* Fixed: added text-white to make emoji visible */}
                     <div className="w-7 h-7 rounded-full bg-[#1e293b] flex items-center justify-center text-lg text-white">
                       {getEmoji(item.name, item.symbol)}
                     </div>
@@ -159,7 +160,7 @@ const MarketTable = ({ data, type }: { data: any[]; type: 'crypto' | 'stock' | '
 }
 
 // ---------- Main Market Page Component ----------
-export default function MarketPage() {
+function MarketPageContent() {
   const [activeTab, setActiveTab] = useState<'crypto' | 'stocks' | 'indices'>('crypto')
   const [marketNews, setMarketNews] = useState([
     { headline: 'RBI keeps repo rate unchanged at 6.5%', link: 'https://economictimes.indiatimes.com' },
@@ -235,58 +236,35 @@ export default function MarketPage() {
 
           {/* Right Sidebar */}
           <div className="space-y-6">
-            {/* Trading Insights Card */}
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-[#0f172a] rounded-2xl p-5 border border-[#1e293b]">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="text-[#f97316]" size={18} />
-                <h3 className="text-white font-semibold">Trading Insight</h3>
-              </div>
+              <div className="flex items-center gap-2 mb-3"><Sparkles className="text-[#f97316]" size={18} /><h3 className="text-white font-semibold">Trading Insight</h3></div>
               <p className="text-[#cbd5e1] text-sm mb-3">Bitcoin dominance rising – altcoin season may be delayed. Watch support at ₹74,000.</p>
-              <div className="text-xs text-[#94a3b8] flex justify-between">
-                <span>AI Analysis</span>
-                <span>Updated 5 min ago</span>
-              </div>
+              <div className="text-xs text-[#94a3b8] flex justify-between"><span>AI Analysis</span><span>Updated 5 min ago</span></div>
             </motion.div>
 
-            {/* Investment Ideas */}
             <div className="bg-[#0f172a] rounded-2xl p-5 border border-[#1e293b]">
               <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><TrendingUp size={16} /> Investment Ideas</h3>
               <div className="space-y-3">
                 {investmentIdeas.map((idea, idx) => (
                   <motion.a key={idx} href={idea.url} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.02 }} className="block p-3 bg-[#1e293b] rounded-xl hover:bg-[#334155] transition">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{idea.icon}</span>
-                      <div className="flex-1">
-                        <div className="text-white text-sm font-medium">{idea.title}</div>
-                        <div className="text-[#94a3b8] text-xs">{idea.description}</div>
-                      </div>
-                      <ExternalLink size={14} className="text-[#0ea5e9]" />
-                    </div>
+                    <div className="flex items-center gap-2"><span className="text-xl">{idea.icon}</span><div className="flex-1"><div className="text-white text-sm font-medium">{idea.title}</div><div className="text-[#94a3b8] text-xs">{idea.description}</div></div><ExternalLink size={14} className="text-[#0ea5e9]" /></div>
                   </motion.a>
                 ))}
               </div>
             </div>
 
-            {/* Sponsored Ads */}
             <div className="bg-[#0f172a] rounded-2xl p-5 border border-[#1e293b]">
               <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><DollarSign size={16} /> Sponsored</h3>
               <div className="space-y-3">
                 {ads.map((ad, idx) => (
                   <motion.a key={idx} href={ad.url} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-3 bg-gradient-to-r from-[#1e293b] to-[#0f172a] rounded-xl border border-[#334155]">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{ad.image}</span>
-                      <div>
-                        <div className="text-white text-sm font-medium">{ad.title}</div>
-                        <div className="text-[#94a3b8] text-xs">{ad.company}</div>
-                      </div>
-                    </div>
+                    <div className="flex items-center gap-3"><span className="text-2xl">{ad.image}</span><div><div className="text-white text-sm font-medium">{ad.title}</div><div className="text-[#94a3b8] text-xs">{ad.company}</div></div></div>
                     <button className="text-[#0ea5e9] text-xs border border-[#0ea5e9] px-3 py-1 rounded-full hover:bg-[#0ea5e9] hover:text-black transition">{ad.cta}</button>
                   </motion.a>
                 ))}
               </div>
             </div>
 
-            {/* Quick Links */}
             <div className="bg-[#0f172a] rounded-2xl p-5 border border-[#1e293b]">
               <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><ArrowUpRight size={16} /> Quick Links</h3>
               <div className="grid grid-cols-2 gap-2">
@@ -301,7 +279,6 @@ export default function MarketPage() {
       </main>
       <BottomNav />
 
-      {/* Global animation style */}
       <style jsx global>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -317,5 +294,14 @@ export default function MarketPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+// Export with ProtectedRoute
+export default function MarketPage() {
+  return (
+    <ProtectedRoute>
+      <MarketPageContent />
+    </ProtectedRoute>
   )
 }
