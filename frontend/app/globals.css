@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #020617;
+}
+
+/* Prevent overflow on all cards */
+.card {
+  overflow: hidden;
+  word-wrap: break-word;
+}
